@@ -264,16 +264,17 @@
   table.pron-table th { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-muted); font-weight: 700; text-align: left; }
   table.pron-table th.num, table.pron-table td.num { text-align: center; width: 78px; min-width: 78px; }
   table.pron-table td.match-col, table.pron-table th.match-col {
-    text-align: left; font-weight: 600; white-space: nowrap; width: 170px; min-width: 170px;
+    width: 250px; min-width: 250px; padding: 10px 8px;
     position: sticky; left: 0; background: var(--surface); z-index: 2;
     box-shadow: 1px 0 0 var(--line);
   }
-  table.pron-table td.score-col, table.pron-table th.score-col {
-    text-align: center; font-weight: 600; width: 80px; min-width: 80px;
-    position: sticky; left: var(--score-col-left, 170px); background: var(--surface); z-index: 2;
-    box-shadow: 1px 0 0 var(--line);
+  table.pron-table .mc-partita {
+    display: inline-block; width: 170px; text-align: left; font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle;
   }
-  table.pron-table tbody tr:hover td.score-col { background: var(--surface-2); }
+  table.pron-table .mc-risultato {
+    display: inline-block; width: 80px; text-align: center; font-weight: 600; vertical-align: middle;
+  }
   table.pron-table tbody tr:last-child td { border-bottom: none; }
   table.pron-table tbody tr:hover td:not(.match-col) { background: var(--surface-2); }
   table.pron-table tbody tr:hover td.match-col { background: var(--surface-2); }
@@ -526,7 +527,7 @@
     const tbody = document.querySelector("#pron-table tbody");
     const tfoot = document.querySelector("#pron-table tfoot");
 
-    thead.innerHTML = "<tr><th class=\"match-col\">Partita</th>" +
+    thead.innerHTML = "<tr><th class=\"match-col\"><span class=\"mc-partita\">Partita</span><span class=\"mc-risultato\">Risultato</span></th>" +
       partecipanti.map(pt => `<th class="num">${pt.nome}</th>`).join("") + "</tr>";
 
     tbody.innerHTML = partite.map((p, i) => {
@@ -547,11 +548,11 @@
       const scoreCell = p.giocata
         ? `<span class="real-score">${p.reale_casa}&ndash;${p.reale_trasferta}</span>`
         : `<span class="real-score pending">da giocare</span>`;
-      return `<tr class="${p.giocata ? "" : "row-pending"}"><td class="match-col">${p.casa} &ndash; ${p.trasferta}<br>${scoreCell}</td>${cells}</tr>`;
+      return `<tr class="${p.giocata ? "" : "row-pending"}"><td class="match-col"><span class="mc-partita">${p.casa} &ndash; ${p.trasferta}</span><span class="mc-risultato">${scoreCell}</span></td>${cells}</tr>`;
     }).join("");
 
     const totLabel = completa ? "Totale giornata" : "Totale provvisorio";
-    tfoot.innerHTML = `<tr><td class="match-col">${totLabel}</td>` +
+    tfoot.innerHTML = `<tr><td class="match-col"><span class="mc-partita">${totLabel}</span><span class="mc-risultato">&ndash;</span></td>` +
       partecipanti.map(pt => `<td class="num">${pt.totale_giornata}</td>`).join("") + "</tr>";
   }
 
@@ -582,33 +583,11 @@
       totals.map(t => `<td>${t || "&ndash;"}</td>`).join("") + `<td>${grandTotal}</td></tr>`;
   }
 
-  pronPicker.addEventListener("change", () => {
-    renderPronTable(pronPicker.value);
-    requestAnimationFrame(() => updateStickyColPositions());
-  });
+  pronPicker.addEventListener("change", () => renderPronTable(pronPicker.value));
   statPicker.addEventListener("change", () => renderStatTable(statPicker.value));
-
-
-  // Calcola dinamicamente la posizione della colonna score-col basandosi sulla larghezza effettiva
-  // di match-col. Così rimane corretta indipendentemente da zoom e resize.
-  function updateStickyColPositions() {
-    const matchColEl = document.querySelector("table.pron-table td.match-col");
-    if (matchColEl) {
-      const matchColWidth = matchColEl.offsetWidth;
-      document.documentElement.style.setProperty("--score-col-left", matchColWidth + "px");
-    }
-  }
-
-  // Aggiorna le posizioni sticky quando la finestra cambia (zoom, resize)
-  let resizeTimer;
-  window.addEventListener("resize", () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(updateStickyColPositions, 150);
-  });
 
   renderClassifica();
   renderGap();
   renderPronTable(ultimaGiornata);
   renderStatTable(ultimaGiornata);
-  updateStickyColPositions();
 </script>
