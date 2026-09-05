@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>Fantacalcio 2026/27</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Libre+Franklin:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap">
+<style>
+  :root {
+    --bg: #000000;
+    --surface: #121212;
+    --surface-2: #1E1E1E;
+    --ink: #F5F5F0;
+    --ink-muted: #B4B8B0;
+    --ink-faint: #7C8078;
+    --line: #2C2C2C;
+    --accent: #46A876;
+    --accent-ink: #0B140F;
+    --accent-soft: #1B3628;
+    --gold: #E0B24C;
+    --gold-soft: #33291A;
+    --cat-jolly-bg: #3E7691;
+    --cat-jolly-fg: #E4F5FF;
+    --cat-superjolly-bg: #C0392B;
+    --cat-superjolly-fg: #FFF3F0;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 24px rgba(0,0,0,.5);
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Libre Franklin", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--accent-soft); }
+
+  .display {
+    font-family: "Teko", ui-sans-serif, system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: .01em;
+    text-wrap: balance;
+  }
+
+  header.masthead {
+    border-bottom: 1px solid var(--line);
+    background: var(--surface);
+  }
+  .masthead-inner {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 22px 20px 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .brand .crest {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Teko", sans-serif;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1;
+    flex: none;
+    box-shadow: var(--shadow);
+  }
+  .brand h1 {
+    font-size: 30px;
+    line-height: 1;
+    margin: 0;
+  }
+  .brand .season {
+    font-size: 14px;
+    color: var(--ink-muted);
+    font-weight: 500;
+  }
+  .masthead-meta {
+    font-size: 12.5px;
+    color: var(--ink-muted);
+    text-align: right;
+    line-height: 1.5;
+  }
+  .masthead-meta strong { color: var(--ink); font-weight: 600; }
+
+  nav.tabs {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 16px 20px 0;
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+  }
+  .tab-btn {
+    appearance: none;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--ink-muted);
+    font: inherit;
+    font-weight: 600;
+    font-size: 14.5px;
+    padding: 10px 16px 12px;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    white-space: nowrap;
+    position: relative;
+    top: 1px;
+  }
+  .tab-btn:hover { color: var(--ink); background: var(--surface-2); }
+  .tab-btn[aria-selected="true"] {
+    color: var(--ink);
+    background: var(--bg);
+    border-color: var(--line);
+    border-bottom-color: var(--bg);
+  }
+  .tab-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  main {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 28px 20px 64px;
+  }
+  .panel { display: none; }
+  .panel.active { display: block; animation: fade .25s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .panel-head h2 {
+    font-size: 26px;
+    margin: 0;
+  }
+  .panel-head p {
+    margin: 2px 0 0;
+    color: var(--ink-muted);
+    font-size: 14px;
+    max-width: 46ch;
+  }
+
+  select.giornata-picker {
+    font: inherit;
+    font-weight: 600;
+    font-size: 13.5px;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 7px 30px 7px 12px;
+    cursor: pointer;
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--ink-muted) 50%), linear-gradient(135deg, var(--ink-muted) 50%, transparent 50%);
+    background-position: calc(100% - 15px) center, calc(100% - 10px) center;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+  }
+
+  /* ---------- Classifica ---------- */
+  .standings {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .standing-row {
+    display: grid;
+    grid-template-columns: 42px 1fr auto 108px;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .standing-row:last-child { border-bottom: none; }
+  .standing-row.leader { background: linear-gradient(90deg, var(--gold-soft), transparent 65%); }
+  .rank {
+    font-family: "Teko", sans-serif;
+    font-size: 26px;
+    color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .leader .rank { color: var(--gold); }
+  .who { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .who .name { font-weight: 600; font-size: 15px; }
+  .badges { display: flex; gap: 6px; flex-wrap: wrap; }
+  .badge {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--ink-muted);
+  }
+  .badge.gold { background: var(--gold-soft); color: var(--gold); }
+  .badge.accent { background: var(--accent-soft); color: var(--accent); }
+  .pts-breakdown { font-size: 12px; color: var(--ink-muted); text-align: right; white-space: nowrap; }
+  .pts-total {
+    font-family: "Teko", sans-serif;
+    font-size: 28px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+  .leader .pts-total { color: var(--accent); }
+
+  .gap-section { margin-top: 28px; }
+  .gap-row {
+    display: grid;
+    grid-template-columns: 110px 1fr 56px;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 0;
+  }
+  .gap-name { font-size: 13px; font-weight: 600; }
+  .gap-track {
+    height: 8px;
+    background: var(--surface-2);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .gap-fill { height: 100%; background: var(--accent); border-radius: 999px; }
+  .gap-row.leader .gap-fill { background: var(--gold); }
+  .gap-val { font-size: 12px; color: var(--ink-muted); text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* ---------- Pronostici ---------- */
+  .participant-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .chip {
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink-muted);
+    cursor: pointer;
+  }
+  .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+  .pron-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); }
+  table.pron-table { border-collapse: collapse; width: 100%; font-size: 13px; min-width: 1080px; table-layout: fixed; }
+  table.pron-table th, table.pron-table td { padding: 10px 8px; text-align: center; border-bottom: 1px solid var(--line); }
+  table.pron-table th { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-muted); font-weight: 700; text-align: left; }
+  table.pron-table th.num, table.pron-table td.num { text-align: center; width: 78px; min-width: 78px; }
+  table.pron-table td.match-col, table.pron-table th.match-col {
+    width: 250px; min-width: 250px; padding: 10px 8px;
+    position: relative; background: var(--surface); z-index: 2;
+    box-shadow: 1px 0 0 var(--line);
+  }
+  table.pron-table .mc-partita {
+    display: inline-block; width: 170px; text-align: left; font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle;
+  }
+  table.pron-table .mc-risultato {
+    display: inline-block; width: 80px; text-align: center; font-weight: 600; vertical-align: middle;
+  }
+  table.pron-table tbody tr:last-child td { border-bottom: none; }
+  table.pron-table tbody tr:hover td:not(.match-col) { background: var(--surface-2); }
+  table.pron-table tbody tr:hover td.match-col { background: var(--surface-2); }
+  table.pron-table .real-score { color: var(--ink-muted); font-weight: 500; font-variant-numeric: tabular-nums; }
+  table.pron-table tfoot td { font-weight: 700; border-top: 2px solid var(--line); border-bottom: none; }
+
+  .pron-cell { display: inline-flex; flex-direction: column; align-items: center; gap: 3px; font-variant-numeric: tabular-nums; line-height: 1.15; }
+  .pron-pts { font-weight: 700; font-size: 15px; }
+  .pron-pts.zero { color: var(--ink-faint); font-weight: 500; }
+  .pron-pts.exact { color: var(--accent); }
+  .pron-pts.pending { color: var(--ink-faint); font-weight: 400; }
+  .real-score.pending { font-style: italic; color: var(--ink-faint); font-size: 11px; }
+  tr.row-pending { opacity: .6; }
+  tr.row-pending:hover { opacity: 1; }
+  .pron-guess {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--ink);
+    background: transparent;
+    padding: 2px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .pron-guess.jolly { background: var(--cat-jolly-bg); color: var(--cat-jolly-fg); }
+  .pron-guess.superjolly { background: var(--cat-superjolly-bg); color: var(--cat-superjolly-fg); }
+  .pron-guess.combo {
+    background: linear-gradient(90deg, var(--cat-jolly-bg) 50%, var(--cat-superjolly-bg) 50%);
+    color: var(--cat-superjolly-fg);
+    text-shadow: 0 1px 1px rgba(0,0,0,.35);
+  }
+
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px; font-size: 12px; color: var(--ink-muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend-swatch { width: 16px; height: 12px; border-radius: 4px; flex: none; }
+  .legend-swatch.jolly { background: var(--cat-jolly-bg); }
+  .legend-swatch.superjolly { background: var(--cat-superjolly-bg); }
+  .legend-swatch.combo { background: linear-gradient(90deg, var(--cat-jolly-bg) 50%, var(--cat-superjolly-bg) 50%); }
+
+  .summary-strip { display: flex; gap: 10px; flex-wrap: wrap; margin: 18px 0 20px; }
+  .stat-tile {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 14px;
+    min-width: 108px;
+    box-shadow: var(--shadow);
+  }
+  .stat-tile .k { font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-muted); font-weight: 700; }
+  .stat-tile .v { font-family: "Teko", sans-serif; font-size: 26px; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  /* ---------- Statistiche ---------- */
+  table.stat-table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  table.stat-table th, table.stat-table td { padding: 9px 10px; border-bottom: 1px solid var(--line); }
+  table.stat-table th { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-muted); font-weight: 700; text-align: right; }
+  table.stat-table th:first-child, table.stat-table td:first-child { text-align: left; }
+  table.stat-table td { text-align: right; font-variant-numeric: tabular-nums; }
+  table.stat-table tbody tr:hover { background: var(--surface-2); }
+  table.stat-table td.zero { color: var(--ink-faint); }
+  table.stat-table tfoot td { font-weight: 700; border-top: 2px solid var(--line); border-bottom: none; }
+
+  footer {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0 20px 40px;
+    color: var(--ink-faint);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  footer a { color: inherit; }
+
+  @media (max-width: 560px) {
+    .standing-row { grid-template-columns: 30px 1fr auto; }
+    .pts-breakdown { display: none; }
+    .brand h1 { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="brand">
+      <div class="crest">FC</div>
+      <div>
+        <h1 class="display">Fantacalcio</h1>
+        <div class="season">Serie A 2026/27 &middot; girone d'andata &middot; 12 partecipanti</div>
+      </div>
+    </div>
+    <div class="masthead-meta">Ultimo aggiornamento: <strong id="last-update"></strong><br>Dati dopo la <strong id="giornate-count"></strong> <span id="live-pill" class="badge accent" hidden>in corso</span></div>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="Sezioni">
+    <button class="tab-btn" role="tab" data-panel="classifica" aria-selected="true">Classifica generale</button>
+    <button class="tab-btn" role="tab" data-panel="pronostici" aria-selected="false">Pronostici &amp; punti</button>
+    <button class="tab-btn" role="tab" data-panel="statistiche" aria-selected="false">Statistiche</button>
+  </nav>
+</header>
+
+<main>
+
+  <section class="panel active" id="panel-classifica">
+    <div class="panel-head">
+      <div>
+        <h2 class="display">Classifica generale</h2>
+        <p>Punti pronostici totali, bonus vittoria di giornata (30 pt) e mega bonus di met&agrave; stagione (50 pt).</p>
+      </div>
+    </div>
+    <div class="standings" id="standings"></div>
+
+    <div class="gap-section">
+      <div class="panel-head">
+        <div>
+          <h2 class="display" style="font-size:22px;">Distanza dal primo posto</h2>
+          <p id="gap-subtitle">Distacco in punti dalla vetta.</p>
+        </div>
+      </div>
+      <div id="gap-list"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-pronostici">
+    <div class="panel-head">
+      <div>
+        <h2 class="display">Pronostici &amp; punti</h2>
+      </div>
+      <select class="giornata-picker" id="giornata-picker-pron"></select>
+    </div>
+
+    <div class="pron-table-wrap">
+      <table class="pron-table" id="pron-table">
+        <thead></thead>
+        <tbody></tbody>
+        <tfoot></tfoot>
+      </table>
+    </div>
+    <div class="legend">
+      <span><span class="legend-swatch jolly"></span> Jolly</span>
+      <span><span class="legend-swatch superjolly"></span> Super-jolly</span>
+      <span><span class="legend-swatch combo"></span> Jolly + Super-jolly</span>
+      <span>Punti in verde = risultato esatto</span>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-statistiche">
+    <div class="panel-head">
+      <div>
+        <h2 class="display">Statistiche per categoria</h2>
+      </div>
+      <select class="giornata-picker" id="giornata-picker-stat"></select>
+    </div>
+    <div class="pron-table-wrap">
+      <table class="stat-table" id="stat-table">
+        <thead></thead>
+        <tbody></tbody>
+        <tfoot></tfoot>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Pagina generata dai pronostici e dai risultati reali di Serie A, secondo il regolamento del torneo. Si aggiorna dopo ogni giornata processata.
+</footer>
+
+<script>
+  const DATA = {"giornate": {"1": {"partite": [{"numero": 1, "casa": "INTER", "trasferta": "MONZA", "giocata": true, "reale_casa": 4, "reale_trasferta": 1}, {"numero": 2, "casa": "TOIRINO", "trasferta": "MILAN", "giocata": true, "reale_casa": 1, "reale_trasferta": 2}, {"numero": 3, "casa": "FROSINONE", "trasferta": "JUVENTUS", "giocata": true, "reale_casa": 0, "reale_trasferta": 1}, {"numero": 4, "casa": "GENOA", "trasferta": "NAPOLI", "giocata": true, "reale_casa": 0, "reale_trasferta": 2}, {"numero": 5, "casa": "ROMA", "trasferta": "FIORENTINA", "giocata": true, "reale_casa": 4, "reale_trasferta": 0}, {"numero": 6, "casa": "ATALANTA", "trasferta": "SASSUOLO", "giocata": true, "reale_casa": 2, "reale_trasferta": 1}, {"numero": 7, "casa": "BOLOGNA", "trasferta": "LAZIO", "giocata": true, "reale_casa": 0, "reale_trasferta": 1}, {"numero": 8, "casa": "UDINESE", "trasferta": "COMO", "giocata": true, "reale_casa": 1, "reale_trasferta": 1}, {"numero": 9, "casa": "PARMA", "trasferta": "CAGLIARI", "giocata": true, "reale_casa": 0, "reale_trasferta": 1}, {"numero": 10, "casa": "VENEZIA", "trasferta": "LECCE", "giocata": true, "reale_casa": 0, "reale_trasferta": 2}], "partecipanti": [{"nome": "CARLO", "partite": [{"pron_casa": 3, "pron_trasferta": 0, "categoria": "jolly", "giocata": true, "punti": 6, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 3, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "superjolly", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 3, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 3, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 9, "esatto": true}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}], "totale_base": 27, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 27, "completa": true}, {"nome": "LUCIA", "partite": [{"pron_casa": 3, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 11, "esatto": true}, {"pron_casa": 0, "pron_trasferta": 2, "categoria": "superjolly", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "jolly", "giocata": true, "punti": 6, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 9, "esatto": true}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}], "totale_base": 38, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 38, "completa": true}, {"nome": "M-G", "partite": [{"pron_casa": 2, "pron_trasferta": 0, "categoria": "jolly", "giocata": true, "punti": 6, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "superjolly", "giocata": true, "punti": 51, "esatto": true}, {"pron_casa": 0, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 8, "esatto": true}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 9, "esatto": true}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}], "totale_base": 83, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 83, "completa": true}, {"nome": "MICHELE", "partite": [{"pron_casa": 2, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 11, "esatto": true}, {"pron_casa": 0, "pron_trasferta": 2, "categoria": "combo", "giocata": true, "punti": 6, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 11, "esatto": true}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 9, "esatto": true}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}], "totale_base": 46, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 46, "completa": true}, {"nome": "LAURA", "partite": [{"pron_casa": 3, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 10, "esatto": true}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 2, "categoria": "combo", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}], "totale_base": 22, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 22, "completa": true}, {"nome": "LDM", "partite": [{"pron_casa": 2, "pron_trasferta": 0, "categoria": "jolly", "giocata": true, "punti": 6, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 3, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "superjolly", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}], "totale_base": 12, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 12, "completa": true}, {"nome": "ALFIO", "partite": [{"pron_casa": 2, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 11, "esatto": true}, {"pron_casa": 0, "pron_trasferta": 3, "categoria": "combo", "giocata": true, "punti": 6, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 3, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 9, "esatto": true}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}], "totale_base": 35, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 35, "completa": true}, {"nome": "M.MIL", "partite": [{"pron_casa": 3, "pron_trasferta": 1, "categoria": "jolly", "giocata": true, "punti": 6, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "superjolly", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}], "totale_base": 6, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 6, "completa": true}, {"nome": "WOLLY", "partite": [{"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 2, "categoria": "superjolly", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "jolly", "giocata": true, "punti": 6, "esatto": false}, {"pron_casa": 3, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 9, "esatto": true}, {"pron_casa": 0, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}], "totale_base": 36, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 36, "completa": true}, {"nome": "FRANCY73", "partite": [{"pron_casa": 2, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 3, "categoria": "combo", "giocata": true, "punti": 6, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 8, "esatto": true}, {"pron_casa": 0, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}], "totale_base": 29, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 29, "completa": true}, {"nome": "MARIO", "partite": [{"pron_casa": 2, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "combo", "giocata": true, "punti": 6, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 9, "esatto": true}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}], "totale_base": 24, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 24, "completa": true}, {"nome": "TITO 73", "partite": [{"pron_casa": 2, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 3, "categoria": "superjolly", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "jolly", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}], "totale_base": 15, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 15, "completa": true}], "statistiche": [{"nome": "CARLO", "Semplice": 21, "Jolly": 6, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "LUCIA", "Semplice": 32, "Jolly": 6, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "M-G", "Semplice": 26, "Jolly": 6, "Super-jolly": 51, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "MICHELE", "Semplice": 40, "Jolly": 6, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "LAURA", "Semplice": 22, "Jolly": 0, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "LDM", "Semplice": 6, "Jolly": 6, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "ALFIO", "Semplice": 29, "Jolly": 6, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "M.MIL", "Semplice": 0, "Jolly": 6, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "WOLLY", "Semplice": 30, "Jolly": 6, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "FRANCY73", "Semplice": 23, "Jolly": 6, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "MARIO", "Semplice": 18, "Jolly": 6, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "TITO 73", "Semplice": 15, "Jolly": 0, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}], "completa": true}, "2": {"partite": [{"numero": 1, "casa": "CAGLIARI", "trasferta": "INTER", "giocata": true, "reale_casa": 0, "reale_trasferta": 1}, {"numero": 2, "casa": "MILAN", "trasferta": "VENEZIA", "giocata": true, "reale_casa": 2, "reale_trasferta": 0}, {"numero": 3, "casa": "JUVENTUS", "trasferta": "PARMA", "giocata": true, "reale_casa": 2, "reale_trasferta": 0}, {"numero": 4, "casa": "NAPOLI", "trasferta": "COMO", "giocata": true, "reale_casa": 1, "reale_trasferta": 2}, {"numero": 5, "casa": "LECCE", "trasferta": "ROMA", "giocata": true, "reale_casa": 0, "reale_trasferta": 4}, {"numero": 6, "casa": "ATALANTA", "trasferta": "BOLOGNA", "giocata": true, "reale_casa": 1, "reale_trasferta": 0}, {"numero": 7, "casa": "LAZIO", "trasferta": "GENOA", "giocata": true, "reale_casa": 1, "reale_trasferta": 0}, {"numero": 8, "casa": "FIORENTINA", "trasferta": "FROSINONE", "giocata": true, "reale_casa": 0, "reale_trasferta": 3}, {"numero": 9, "casa": "SASSUOLO", "trasferta": "TOIRINO", "giocata": true, "reale_casa": 2, "reale_trasferta": 1}, {"numero": 10, "casa": "MONZA", "trasferta": "UDINESE", "giocata": true, "reale_casa": 2, "reale_trasferta": 3}], "partecipanti": [{"nome": "CARLO", "partite": [{"pron_casa": 0, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 8, "esatto": true}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "jolly", "giocata": true, "punti": 26, "esatto": true}, {"pron_casa": 5, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 4, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 8, "esatto": true}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 3, "categoria": "superjolly", "giocata": true, "punti": 75, "esatto": true}], "totale_base": 123, "jollyssimo": 117, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 240, "completa": true}, {"nome": "LUCIA", "partite": [{"pron_casa": 1, "pron_trasferta": 2, "categoria": "superjolly", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 3, "pron_trasferta": 1, "categoria": "jolly", "giocata": true, "punti": 6, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 10, "esatto": true}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 3, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}], "totale_base": 28, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 28, "completa": true}, {"nome": "M-G", "partite": [{"pron_casa": 1, "pron_trasferta": 2, "categoria": "superjolly", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 10, "esatto": true}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "jolly", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}], "totale_base": 25, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 25, "completa": true}, {"nome": "MICHELE", "partite": [{"pron_casa": 0, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 3, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 10, "esatto": true}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 2, "categoria": "combo", "giocata": true, "punti": 6, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 11, "esatto": true}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}], "totale_base": 42, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 42, "completa": true}, {"nome": "LAURA", "partite": [{"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 3, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 3, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 2, "categoria": "combo", "giocata": true, "punti": 6, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 11, "esatto": true}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}], "totale_base": 26, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 26, "completa": true}, {"nome": "LDM", "partite": [{"pron_casa": 0, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "superjolly", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 8, "esatto": true}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "jolly", "giocata": true, "punti": 6, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}], "totale_base": 23, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 23, "completa": true}, {"nome": "ALFIO", "partite": [{"pron_casa": 0, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 8, "esatto": true}, {"pron_casa": 3, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 3, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 2, "categoria": "combo", "giocata": true, "punti": 6, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 3, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}], "totale_base": 29, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 29, "completa": true}, {"nome": "M.MIL", "partite": [{"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 4, "pron_trasferta": 1, "categoria": "jolly", "giocata": true, "punti": 6, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 3, "categoria": "superjolly", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}], "totale_base": 9, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 9, "completa": true}, {"nome": "WOLLY", "partite": [{"pron_casa": 0, "pron_trasferta": 2, "categoria": "superjolly", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "jolly", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}], "totale_base": 6, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 6, "completa": true}, {"nome": "FRANCY73", "partite": [{"pron_casa": 0, "pron_trasferta": 3, "categoria": "superjolly", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "jolly", "giocata": true, "punti": 26, "esatto": true}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 10, "esatto": true}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 8, "esatto": true}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}], "totale_base": 53, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 53, "completa": true}, {"nome": "MARIO", "partite": [{"pron_casa": 0, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 3, "pron_trasferta": 1, "categoria": "jolly", "giocata": true, "punti": 6, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 8, "esatto": true}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 8, "esatto": true}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "superjolly", "giocata": true, "punti": 3, "esatto": false}], "totale_base": 34, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 34, "completa": true}, {"nome": "TITO 73", "partite": [{"pron_casa": 1, "pron_trasferta": 2, "categoria": "superjolly", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "jolly", "giocata": true, "punti": 26, "esatto": true}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 3, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 3, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}], "totale_base": 38, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 38, "completa": true}], "statistiche": [{"nome": "CARLO", "Semplice": 22, "Jolly": 26, "Super-jolly": 75, "Jolly+Super-jolly": 0, "Jollyssimo": 117, "Zero": 0, "Totalissimo": 0}, {"nome": "LUCIA", "Semplice": 22, "Jolly": 6, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "M-G", "Semplice": 25, "Jolly": 0, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "MICHELE", "Semplice": 36, "Jolly": 6, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "LAURA", "Semplice": 20, "Jolly": 6, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "LDM", "Semplice": 17, "Jolly": 6, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "ALFIO", "Semplice": 23, "Jolly": 6, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "M.MIL", "Semplice": 3, "Jolly": 6, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "WOLLY", "Semplice": 6, "Jolly": 0, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "FRANCY73", "Semplice": 27, "Jolly": 26, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "MARIO", "Semplice": 28, "Jolly": 6, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "TITO 73", "Semplice": 12, "Jolly": 26, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}], "completa": true}, "3": {"partite": [{"numero": 1, "casa": "JUVENTUS", "trasferta": "MILAN", "giocata": false, "reale_casa": null, "reale_trasferta": null}, {"numero": 2, "casa": "INTER", "trasferta": "NAPOLI", "giocata": true, "reale_casa": 3, "reale_trasferta": 2}, {"numero": 3, "casa": "ROMA", "trasferta": "ATALANTA", "giocata": true, "reale_casa": 2, "reale_trasferta": 1}, {"numero": 4, "casa": "UDINESE", "trasferta": "LAZIO", "giocata": false, "reale_casa": null, "reale_trasferta": null}, {"numero": 5, "casa": "FIORENTINA", "trasferta": "TOIRINO", "giocata": true, "reale_casa": 1, "reale_trasferta": 2}, {"numero": 6, "casa": "GENOA", "trasferta": "COMO", "giocata": true, "reale_casa": 1, "reale_trasferta": 4}, {"numero": 7, "casa": "BOLOGNA", "trasferta": "SASSUOLO", "giocata": false, "reale_casa": null, "reale_trasferta": null}, {"numero": 8, "casa": "CAGLIARI", "trasferta": "LECCE", "giocata": false, "reale_casa": null, "reale_trasferta": null}, {"numero": 9, "casa": "PARMA", "trasferta": "MONZA", "giocata": false, "reale_casa": null, "reale_trasferta": null}, {"numero": 10, "casa": "FROSINONE", "trasferta": "VENEZIA", "giocata": false, "reale_casa": null, "reale_trasferta": null}], "partecipanti": [{"nome": "CARLO", "partite": [{"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 4, "categoria": "superjolly", "giocata": true, "punti": 75, "esatto": true}, {"pron_casa": 0, "pron_trasferta": 2, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "jolly", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}], "totale_base": 78, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 78, "completa": false}, {"nome": "LUCIA", "partite": [{"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "superjolly", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "jolly", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}], "totale_base": 6, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 6, "completa": false}, {"nome": "M-G", "partite": [{"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "jolly", "giocata": true, "punti": 6, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "superjolly", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}], "totale_base": 6, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 6, "completa": false}, {"nome": "MICHELE", "partite": [{"pron_casa": 2, "pron_trasferta": 1, "categoria": "jolly", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 11, "esatto": true}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "superjolly", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 3, "pron_trasferta": 2, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 0, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}], "totale_base": 14, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 14, "completa": false}, {"nome": "LAURA", "partite": [{"pron_casa": 2, "pron_trasferta": 2, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 3, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "combo", "giocata": true, "punti": 6, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 2, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}], "totale_base": 9, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 9, "completa": false}, {"nome": "LDM", "partite": [{"pron_casa": 2, "pron_trasferta": 2, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "superjolly", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 0, "categoria": "jolly", "giocata": false, "punti": null, "esatto": false}], "totale_base": 3, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 3, "completa": false}, {"nome": "ALFIO", "partite": [{"pron_casa": 2, "pron_trasferta": 0, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 3, "categoria": "superjolly", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "jolly", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}], "totale_base": 3, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 3, "completa": false}, {"nome": "M.MIL", "partite": [{"pron_casa": 1, "pron_trasferta": 2, "categoria": "superjolly", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "jolly", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}], "totale_base": 0, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 0, "completa": false}, {"nome": "WOLLY", "partite": [{"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "superjolly", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "jolly", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}], "totale_base": 3, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 3, "completa": false}, {"nome": "FRANCY73", "partite": [{"pron_casa": 1, "pron_trasferta": 2, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 2, "categoria": "superjolly", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 11, "esatto": true}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 1, "categoria": "jolly", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}], "totale_base": 11, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 11, "completa": false}, {"nome": "MARIO", "partite": [{"pron_casa": 1, "pron_trasferta": 1, "categoria": "jolly", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "superjolly", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 0, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 0, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 0, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}], "totale_base": 6, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 6, "completa": false}, {"nome": "TITO 73", "partite": [{"pron_casa": 2, "pron_trasferta": 0, "categoria": "jolly", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 3, "pron_trasferta": 0, "categoria": "semplice", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 0, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 2, "pron_trasferta": 2, "categoria": "semplice", "giocata": true, "punti": 0, "esatto": false}, {"pron_casa": 0, "pron_trasferta": 1, "categoria": "superjolly", "giocata": true, "punti": 3, "esatto": false}, {"pron_casa": 3, "pron_trasferta": 3, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 0, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 3, "pron_trasferta": 0, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}, {"pron_casa": 1, "pron_trasferta": 1, "categoria": "semplice", "giocata": false, "punti": null, "esatto": false}], "totale_base": 9, "jollyssimo": 0, "zero_bonus": 0, "totalissimo": 0, "totale_giornata": 9, "completa": false}], "statistiche": [{"nome": "CARLO", "Semplice": 3, "Jolly": 0, "Super-jolly": 75, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "LUCIA", "Semplice": 6, "Jolly": 0, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "M-G", "Semplice": 0, "Jolly": 6, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "MICHELE", "Semplice": 14, "Jolly": 0, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "LAURA", "Semplice": 3, "Jolly": 6, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "LDM", "Semplice": 3, "Jolly": 0, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "ALFIO", "Semplice": 3, "Jolly": 0, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "M.MIL", "Semplice": 0, "Jolly": 0, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "WOLLY", "Semplice": 3, "Jolly": 0, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "FRANCY73", "Semplice": 11, "Jolly": 0, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "MARIO", "Semplice": 6, "Jolly": 0, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}, {"nome": "TITO 73", "Semplice": 9, "Jolly": 0, "Super-jolly": 0, "Jolly+Super-jolly": 0, "Jollyssimo": 0, "Zero": 0, "Totalissimo": 0}], "completa": false}}, "classifica": [{"nome": "CARLO", "totale": 345, "bonus_vittorie": 30, "bonus_andata": 30, "bonus_ritorno": 0, "mega_bonus_andata": 0, "mega_bonus_ritorno": 0, "punti_totali": 375}, {"nome": "M-G", "totale": 114, "bonus_vittorie": 30, "bonus_andata": 30, "bonus_ritorno": 0, "mega_bonus_andata": 0, "mega_bonus_ritorno": 0, "punti_totali": 144}, {"nome": "MICHELE", "totale": 102, "bonus_vittorie": 0, "bonus_andata": 0, "bonus_ritorno": 0, "mega_bonus_andata": 0, "mega_bonus_ritorno": 0, "punti_totali": 102}, {"nome": "FRANCY73", "totale": 93, "bonus_vittorie": 0, "bonus_andata": 0, "bonus_ritorno": 0, "mega_bonus_andata": 0, "mega_bonus_ritorno": 0, "punti_totali": 93}, {"nome": "LUCIA", "totale": 72, "bonus_vittorie": 0, "bonus_andata": 0, "bonus_ritorno": 0, "mega_bonus_andata": 0, "mega_bonus_ritorno": 0, "punti_totali": 72}, {"nome": "ALFIO", "totale": 67, "bonus_vittorie": 0, "bonus_andata": 0, "bonus_ritorno": 0, "mega_bonus_andata": 0, "mega_bonus_ritorno": 0, "punti_totali": 67}, {"nome": "MARIO", "totale": 64, "bonus_vittorie": 0, "bonus_andata": 0, "bonus_ritorno": 0, "mega_bonus_andata": 0, "mega_bonus_ritorno": 0, "punti_totali": 64}, {"nome": "TITO 73", "totale": 62, "bonus_vittorie": 0, "bonus_andata": 0, "bonus_ritorno": 0, "mega_bonus_andata": 0, "mega_bonus_ritorno": 0, "punti_totali": 62}, {"nome": "LAURA", "totale": 57, "bonus_vittorie": 0, "bonus_andata": 0, "bonus_ritorno": 0, "mega_bonus_andata": 0, "mega_bonus_ritorno": 0, "punti_totali": 57}, {"nome": "WOLLY", "totale": 45, "bonus_vittorie": 0, "bonus_andata": 0, "bonus_ritorno": 0, "mega_bonus_andata": 0, "mega_bonus_ritorno": 0, "punti_totali": 45}, {"nome": "LDM", "totale": 38, "bonus_vittorie": 0, "bonus_andata": 0, "bonus_ritorno": 0, "mega_bonus_andata": 0, "mega_bonus_ritorno": 0, "punti_totali": 38}, {"nome": "M.MIL", "totale": 15, "bonus_vittorie": 0, "bonus_andata": 0, "bonus_ritorno": 0, "mega_bonus_andata": 0, "mega_bonus_ritorno": 0, "punti_totali": 15}], "distanza": [{"nome": "CARLO", "punti": 0}, {"nome": "MG", "punti": -231}, {"nome": "MICHELE", "punti": -243}, {"nome": "FRANCY 73", "punti": -252}, {"nome": "LUCIA", "punti": -273}, {"nome": "ALFIO", "punti": -278}, {"nome": "MARIO", "punti": -281}, {"nome": "TITO 73", "punti": -283}, {"nome": "LAURA", "punti": -288}, {"nome": "WOLLY", "punti": -300}, {"nome": "LDM", "punti": -307}, {"nome": "M.MIL", "punti": -330}], "titolo_distanza": "DISTANZA DAL PRIMO POSTO - DOPO LA 3^ GIORNATA"};
+
+  // ---------- tabs ----------
+  const tabs = document.querySelectorAll(".tab-btn");
+  const panels = document.querySelectorAll(".panel");
+  tabs.forEach(btn => {
+    btn.addEventListener("click", () => {
+      tabs.forEach(b => b.setAttribute("aria-selected", "false"));
+      panels.forEach(p => p.classList.remove("active"));
+      btn.setAttribute("aria-selected", "true");
+      document.getElementById("panel-" + btn.dataset.panel).classList.add("active");
+    });
+  });
+
+  // ---------- header meta ----------
+  const giornateDisponibili = Object.keys(DATA.giornate).map(Number).sort((a,b) => a-b);
+  const ultimaGiornata = giornateDisponibili[giornateDisponibili.length - 1];
+  const ultimaCompleta = DATA.giornate[ultimaGiornata].completa;
+  document.getElementById("giornate-count").textContent =
+    giornateDisponibili.length === 1 ? "1ª giornata" : giornateDisponibili.length + " giornate";
+  document.getElementById("last-update").textContent = DATA.aggiornato_al;
+  document.getElementById("live-pill").hidden = ultimaCompleta;
+
+  // ---------- classifica ----------
+  function renderClassifica() {
+    const wrap = document.getElementById("standings");
+    const rows = DATA.classifica;
+    const maxPts = Math.max(...rows.map(r => r.punti_totali));
+    wrap.innerHTML = rows.map((r, i) => {
+      const isLeader = i === 0;
+      const badges = [];
+      if (r.mega_bonus_andata) badges.push('<span class="badge gold">+50 andata</span>');
+      if (r.mega_bonus_ritorno) badges.push('<span class="badge gold">+50 ritorno</span>');
+      if (r.bonus_vittorie) badges.push('<span class="badge accent">' + r.bonus_vittorie + ' pt giornate vinte</span>');
+      return `<div class="standing-row ${isLeader ? "leader" : ""}">
+        <div class="rank display">${i + 1}</div>
+        <div class="who">
+          <div class="name">${r.nome}</div>
+          <div class="badges">${badges.join("")}</div>
+        </div>
+        <div class="pts-breakdown">pronostici ${r.totale}${r.bonus_vittorie ? " + bonus " + r.bonus_vittorie : ""}${(r.mega_bonus_andata||r.mega_bonus_ritorno) ? " + 50" : ""}</div>
+        <div class="pts-total display">${r.punti_totali}</div>
+      </div>`;
+    }).join("");
+  }
+
+  function renderGap() {
+    const wrap = document.getElementById("gap-list");
+    const rows = DATA.distanza;
+    const subtitle = document.getElementById("gap-subtitle");
+    subtitle.textContent = "Cumulativo dopo la giornata " + ultimaGiornata + (ultimaCompleta ? "" : " (ancora in corso)") + ": distacco in punti dalla vetta.";
+    const maxGap = Math.max(1, ...rows.map(r => Math.abs(r.punti)));
+    wrap.innerHTML = rows.map((r, i) => {
+      const pct = Math.max(4, Math.round((maxGap - Math.abs(r.punti)) / maxGap * 100));
+      return `<div class="gap-row ${i === 0 ? "leader" : ""}">
+        <div class="gap-name">${r.nome}</div>
+        <div class="gap-track"><div class="gap-fill" style="width:${pct}%"></div></div>
+        <div class="gap-val">${r.punti === 0 ? "&mdash;" : r.punti}</div>
+      </div>`;
+    }).join("");
+  }
+
+  // ---------- pronostici ----------
+  const pronPicker = document.getElementById("giornata-picker-pron");
+  const statPicker = document.getElementById("giornata-picker-stat");
+  [pronPicker, statPicker].forEach(sel => {
+    sel.innerHTML = giornateDisponibili.map(g => `<option value="${g}">Giornata ${g}</option>`).join("");
+    sel.value = ultimaGiornata;
+  });
+
+  // categoria del pronostico (jolly/superjolly/combo/semplice) -> classe da
+  // applicare allo sfondo del pronostico tra parentesi (celeste/blu/mezzo e mezzo)
+  function guessClass(cat) {
+    if (cat === "jolly" || cat === "superjolly" || cat === "combo") return cat;
+    return "";
+  }
+
+  // Partite in riga, un partecipante per colonna: ogni cella mostra i punti
+  // realizzati e, tra parentesi, il pronostico fatto per quella partita.
+  // Le partite non ancora disputate restano "in standby": si vede il
+  // pronostico ma non un punteggio.
+  function renderPronTable(g) {
+    const partite = DATA.giornate[g].partite;
+    const partecipanti = DATA.giornate[g].partecipanti;
+    const completa = DATA.giornate[g].completa;
+    const thead = document.querySelector("#pron-table thead");
+    const tbody = document.querySelector("#pron-table tbody");
+    const tfoot = document.querySelector("#pron-table tfoot");
+
+    thead.innerHTML = "<tr><th class=\"match-col\"><span class=\"mc-partita\">Partita</span><span class=\"mc-risultato\">Risultato</span></th>" +
+      partecipanti.map(pt => `<th class="num">${pt.nome}</th>`).join("") + "</tr>";
+
+    tbody.innerHTML = partite.map((p, i) => {
+      const cells = partecipanti.map(pt => {
+        const m = pt.partite[i];
+        if (!m.giocata) {
+          return `<td class="num"><span class="pron-cell">
+            <span class="pron-pts pending">&hellip;</span>
+            <span class="pron-guess ${guessClass(m.categoria)}">(${m.pron_casa}-${m.pron_trasferta})</span>
+          </span></td>`;
+        }
+        const cls = m.esatto ? "exact" : (m.punti === 0 ? "zero" : "");
+        return `<td class="num"><span class="pron-cell">
+          <span class="pron-pts ${cls}">${m.punti ? "+" + m.punti : "&ndash;"}</span>
+          <span class="pron-guess ${guessClass(m.categoria)}">(${m.pron_casa}-${m.pron_trasferta})</span>
+        </span></td>`;
+      }).join("");
+      const scoreCell = p.giocata
+        ? `<span class="real-score">${p.reale_casa}&ndash;${p.reale_trasferta}</span>`
+        : `<span class="real-score pending">da giocare</span>`;
+      return `<tr class="${p.giocata ? "" : "row-pending"}"><td class="match-col"><span class="mc-partita">${p.casa} &ndash; ${p.trasferta}</span><span class="mc-risultato">${scoreCell}</span></td>${cells}</tr>`;
+    }).join("");
+
+    const totLabel = completa ? "Totale giornata" : "Totale provvisorio";
+    tfoot.innerHTML = `<tr><td class="match-col"><span class="mc-partita">${totLabel}</span><span class="mc-risultato">&ndash;</span></td>` +
+      partecipanti.map(pt => `<td class="num">${pt.totale_giornata}</td>`).join("") + "</tr>";
+  }
+
+  // ---------- statistiche ----------
+  const CATEGORIE = ["Semplice", "Jolly", "Super-jolly", "Jolly+Super-jolly", "Jollyssimo", "Zero", "Totalissimo"];
+  function renderStatTable(g) {
+    const rows = DATA.giornate[g].statistiche;
+    const thead = document.querySelector("#stat-table thead");
+    const tbody = document.querySelector("#stat-table tbody");
+    const tfoot = document.querySelector("#stat-table tfoot");
+
+    thead.innerHTML = "<tr><th>Partecipante</th>" + CATEGORIE.map(c => `<th>${c}</th>`).join("") + "<th>Totale</th></tr>";
+
+    let totals = CATEGORIE.map(() => 0);
+    tbody.innerHTML = rows.map(r => {
+      let rowTotal = 0;
+      const cells = CATEGORIE.map((c, i) => {
+        const v = r[c] || 0;
+        totals[i] += v;
+        rowTotal += v;
+        return `<td class="${v === 0 ? "zero" : ""}">${v || "&ndash;"}</td>`;
+      }).join("");
+      return `<tr><td style="text-align:left;font-weight:600;">${r.nome}</td>${cells}<td style="font-weight:700;">${rowTotal}</td></tr>`;
+    }).join("");
+
+    const grandTotal = totals.reduce((a,b) => a+b, 0);
+    tfoot.innerHTML = "<tr><td style=\"text-align:left;\">Totale giornata</td>" +
+      totals.map(t => `<td>${t || "&ndash;"}</td>`).join("") + `<td>${grandTotal}</td></tr>`;
+  }
+
+  // Colonna "Partita/Risultato" congelata via JavaScript invece che con position:sticky.
+  //
+  // Perché non basta position:sticky sul telefono: quando si fa pinch-zoom, i browser
+  // mobile creano un "viewport visivo" (la porzione ingrandita che si vede) distinto dal
+  // "viewport di layout" (la pagina come è impaginata). position:sticky si ancora al
+  // viewport di layout, quindi appena si sposta la vista dentro la pagina ingrandita la
+  // colonna esce dallo schermo: non è un bug del CSS, è come funziona lo zoom su mobile.
+  //
+  // Qui la posizione viene ricalcolata da zero ad ogni evento, sommando due spostamenti:
+  //  - lo scroll orizzontale del contenitore della tabella;
+  //  - lo spostamento del viewport visivo (visualViewport.offsetLeft), cioè di quanto la
+  //    vista ingrandita è stata trascinata rispetto alla pagina.
+  const pronWrap = document.querySelector("#pron-table").closest(".pron-table-wrap");
+  const vv = window.visualViewport;
+  function syncFrozenCol() {
+    // Con lo zoom attivo, offsetLeft dice di quanto la vista ingrandita è spostata.
+    // Va diviso per la scala perché il transform è applicato in coordinate di layout,
+    // mentre offsetLeft è espresso in pixel del viewport visivo (già ingranditi).
+    const zoomOffset = vv && vv.scale > 1 ? vv.offsetLeft / vv.scale : 0;
+    const shift = pronWrap.scrollLeft + zoomOffset;
+    document.querySelectorAll("table.pron-table td.match-col, table.pron-table th.match-col").forEach(el => {
+      el.style.transform = shift ? `translateX(${shift}px)` : "";
+    });
+  }
+  pronWrap.addEventListener("scroll", syncFrozenCol, { passive: true });
+  window.addEventListener("resize", syncFrozenCol);
+  // Durante il pinch-zoom la vista si sposta senza generare eventi di scroll sulla
+  // pagina: questi due eventi del viewport visivo sono l'unico modo di intercettarlo.
+  if (vv) {
+    vv.addEventListener("scroll", syncFrozenCol, { passive: true });
+    vv.addEventListener("resize", syncFrozenCol, { passive: true });
+  }
+
+  pronPicker.addEventListener("change", () => {
+    renderPronTable(pronPicker.value);
+    syncFrozenCol();
+  });
+  statPicker.addEventListener("change", () => renderStatTable(statPicker.value));
+
+  renderClassifica();
+  renderGap();
+  renderPronTable(ultimaGiornata);
+  renderStatTable(ultimaGiornata);
+  syncFrozenCol();
+</script>
+</body>
+</html>
