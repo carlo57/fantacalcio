@@ -258,21 +258,63 @@
   }
   .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 
-  .pron-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); }
-  table.pron-table { border-collapse: collapse; width: 100%; font-size: 13px; min-width: 1080px; table-layout: fixed; }
-  table.pron-table th, table.pron-table td { padding: 10px 8px; text-align: center; border-bottom: 1px solid var(--line); }
-  table.pron-table th { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-muted); font-weight: 700; text-align: left; }
-  table.pron-table th.num, table.pron-table td.num { text-align: center; width: 78px; min-width: 78px; }
+  .pron-table-wrap { 
+    overflow-x: auto; 
+    border: 1px solid var(--line); 
+    border-radius: var(--radius); 
+    background: var(--surface); 
+    box-shadow: var(--shadow);
+  }
+  table.pron-table { 
+    border-collapse: collapse; 
+    width: 100%; 
+    font-size: 13px; 
+    min-width: 1080px; 
+    table-layout: fixed; 
+  }
+  table.pron-table th, table.pron-table td { 
+    padding: 10px 8px; 
+    text-align: center; 
+    border-bottom: 1px solid var(--line); 
+  }
+  table.pron-table th { 
+    font-size: 11px; 
+    text-transform: uppercase; 
+    letter-spacing: .04em; 
+    color: var(--ink-muted); 
+    font-weight: 700; 
+    text-align: left; 
+  }
+  table.pron-table th.num, table.pron-table td.num { 
+    text-align: center; 
+    width: 78px; 
+    min-width: 78px; 
+  }
   table.pron-table td.match-col, table.pron-table th.match-col {
-    text-align: left; font-weight: 600; white-space: nowrap; width: 170px; min-width: 170px;
-    position: sticky; left: 0; background: var(--surface); z-index: 2;
-    box-shadow: 1px 0 0 var(--line);
+    text-align: left; 
+    font-weight: 600; 
+    white-space: nowrap; 
+    width: 170px; 
+    min-width: 170px;
+    position: sticky; 
+    left: 0; 
+    background: var(--surface); 
+    z-index: 10;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.2);
   }
   table.pron-table td.score-col, table.pron-table th.score-col {
-    text-align: center; font-weight: 600; width: 80px; min-width: 80px;
-    position: sticky; left: 170px; background: var(--surface); z-index: 2;
-    box-shadow: 1px 0 0 var(--line);
+    text-align: center;
+    font-weight: 600;
+    width: 80px;
+    min-width: 80px;
+    position: sticky;
+    left: var(--score-col-left, 170px);
+    background: var(--surface);
+    z-index: 9;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.2);
   }
+  table.pron-table tbody tr:hover td:not(.match-col):not(.score-col) { background: var(--surface-2); }
+  table.pron-table tbody tr:hover td.match-col { background: var(--surface-2); }
   table.pron-table tbody tr:hover td.score-col { background: var(--surface-2); }
   table.pron-table tbody tr:last-child td { border-bottom: none; }
   table.pron-table tbody tr:hover td:not(.match-col) { background: var(--surface-2); }
@@ -526,7 +568,7 @@
     const tbody = document.querySelector("#pron-table tbody");
     const tfoot = document.querySelector("#pron-table tfoot");
 
-    thead.innerHTML = "<tr><th class=\"match-col\">Partita</th>" +
+    thead.innerHTML = "<tr><th class="match-col">Partita</th><th class="score-col">Risultato</th>" +
       partecipanti.map(pt => `<th class="num">${pt.nome}</th>`).join("") + "</tr>";
 
     tbody.innerHTML = partite.map((p, i) => {
@@ -538,6 +580,22 @@
             <span class="pron-guess ${guessClass(m.categoria)}">(${m.pron_casa}-${m.pron_trasferta})</span>
           </span></td>`;
         }
+        const cls = m.esatto ? "exact" : (m.punti === 0 ? "zero" : "");
+        return `<td class="num"><span class="pron-cell">
+          <span class="pron-pts ${cls}">${m.punti ? "+" + m.punti : "&ndash;"}</span>
+          <span class="pron-guess ${guessClass(m.categoria)}">(${m.pron_casa}-${m.pron_trasferta})</span>
+        </span></td>`;
+      }).join("");
+      const scoreCell = p.giocata
+        ? `<span class="real-score">${p.reale_casa}&ndash;${p.reale_trasferta}</span>`
+        : `<span class="real-score pending">da giocare</span>`;
+      return `<tr class="${p.giocata ? "" : "row-pending"}"><td class="match-col">${p.casa} &ndash; ${p.trasferta}</td><td class="score-col">${scoreCell}</td>${cells}</tr>`;
+    }).join("");
+
+    const totLabel = completa ? "Totale giornata" : "Totale provvisorio";
+    tfoot.innerHTML = `<tr><td class="match-col">${totLabel}</td><td class="score-col">&ndash;</td>` +
+      partecipanti.map(pt => `<td class="num">${pt.totale_giornata}</td>`).join("") + "</tr>";
+  }
         const cls = m.esatto ? "exact" : (m.punti === 0 ? "zero" : "");
         return `<td class="num"><span class="pron-cell">
           <span class="pron-pts ${cls}">${m.punti ? "+" + m.punti : "&ndash;"}</span>
@@ -582,11 +640,33 @@
       totals.map(t => `<td>${t || "&ndash;"}</td>`).join("") + `<td>${grandTotal}</td></tr>`;
   }
 
-  pronPicker.addEventListener("change", () => renderPronTable(pronPicker.value));
+  // Calcola dinamicamente la posizione della colonna score-col basandosi sulla larghezza effettiva
+  // di match-col. Così rimane corretta indipendentemente da zoom e resize.
+  function updateStickyColPositions() {
+    const matchColEl = document.querySelector("table.pron-table td.match-col");
+    if (matchColEl) {
+      const matchColWidth = matchColEl.offsetWidth;
+      document.documentElement.style.setProperty("--score-col-left", matchColWidth + "px");
+    }
+  }
+
+  pronPicker.addEventListener("change", () => {
+    renderPronTable(pronPicker.value);
+    // Piccolo delay per assicurarsi che il DOM sia aggiornato prima di misurare
+    requestAnimationFrame(() => updateStickyColPositions());
+  });
   statPicker.addEventListener("change", () => renderStatTable(statPicker.value));
+
+  // Aggiorna le posizioni sticky quando la finestra cambia (zoom, resize)
+  let resizeTimer;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(updateStickyColPositions, 150);
+  });
 
   renderClassifica();
   renderGap();
   renderPronTable(ultimaGiornata);
   renderStatTable(ultimaGiornata);
+  updateStickyColPositions();
 </script>
